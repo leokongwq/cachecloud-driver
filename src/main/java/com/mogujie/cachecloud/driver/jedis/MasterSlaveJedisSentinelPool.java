@@ -113,7 +113,7 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
                 jedis = new Jedis(hap.getHost(), hap.getPort());
 
                 List<String> masterAddr = jedis.sentinelGetMasterAddrByName(masterName);
-                List<Map<String,String>> slaveAddrs = jedis.sentinelSlaves(masterName);
+                List<Map<String, String>> slaveAddrs = jedis.sentinelSlaves(masterName);
 
                 if (masterAddr == null || masterAddr.size() != 2) {
                     logger.warn("Can not get master addr, master name: {}. Sentinel: {}.", masterName, hap);
@@ -127,8 +127,8 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
 
                 master = toHostAndPort(masterAddr);
 
-                for(Map<String,String> slave : slaveAddrs){
-                    if("slave".equals(slave.get("flags"))){ //is normal worked slave at now
+                for (Map<String, String> slave : slaveAddrs) {
+                    if ("slave".equals(slave.get("flags"))) { //is normal worked slave at now
                         slaves.add(toHostAndPort(Arrays.asList(slave.get("ip"), slave.get("port"))));
                     }
                 }
@@ -147,7 +147,7 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
     }
 
     protected void initSentinelLiseners() {
-        if(currentHostMasterSlave != null){
+        if (currentHostMasterSlave != null) {
             logger.info("Starting Sentinel listeners...");
             for (String sentinel : sentinels) {
                 try {
@@ -155,38 +155,39 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
                     MasterSlaveListener masterSlaveListener = new MasterSlaveListener(masterName, hap.getHost(), hap.getPort());
                     masterSlaveListeners.add(masterSlaveListener);
                     masterSlaveListener.start();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     logger.error("Starting Starting Sentinel listeners caught a exception: " + e.getMessage(), e);
                 }
             }
         }
     }
 
-    protected synchronized void initPool(MasterSlaveHostAndPort masterSlaveHostAndPort){
-        if(masterSlaveHostAndPort != null && !masterSlaveHostAndPort.equals(currentHostMasterSlave)){
-            currentHostMasterSlave = masterSlaveHostAndPort;
-
-            JedisShardInfo masterShard = toJedisShardInfo(masterSlaveHostAndPort.getMaster(), masterSlaveHostAndPort.getMasterName());
-            List<JedisShardInfo> slaveShards = new ArrayList<JedisShardInfo>();
-            for(HostAndPort slave : masterSlaveHostAndPort.getSlaves()){
-                JedisShardInfo slaveShard = toJedisShardInfo(slave, null);
-                slaveShards.add(slaveShard);
-            }
-            if(factory == null){
-                factory = new MasterSlaveJedisFactory(masterShard, slaveShards, Hashing.MURMUR_HASH, null);
-                initPool(poolConfig, factory);
-            }else{
-                factory.setMasterShard(masterShard);
-                factory.setSlaveShards(slaveShards);
-                // although we clear the pool, we still have to check the
-                // returned object
-                // in getResource, this call only clears idle instances, not
-                // borrowed instances
-                internalPool.clear();
-            }
-
-            logger.info("Create Master-Slaves jedis pool for {}", currentHostMasterSlave);
+    protected synchronized void initPool(MasterSlaveHostAndPort masterSlaveHostAndPort) {
+        if (null == masterSlaveHostAndPort || masterSlaveHostAndPort.equals(currentHostMasterSlave)) {
+            return;
         }
+        currentHostMasterSlave = masterSlaveHostAndPort;
+
+        JedisShardInfo masterShard = toJedisShardInfo(masterSlaveHostAndPort.getMaster(), masterSlaveHostAndPort.getMasterName());
+        List<JedisShardInfo> slaveShards = new ArrayList<JedisShardInfo>();
+        for (HostAndPort slave : masterSlaveHostAndPort.getSlaves()) {
+            JedisShardInfo slaveShard = toJedisShardInfo(slave, null);
+            slaveShards.add(slaveShard);
+        }
+        if (factory == null) {
+            factory = new MasterSlaveJedisFactory(masterShard, slaveShards, Hashing.MURMUR_HASH, null);
+            initPool(poolConfig, factory);
+        } else {
+            factory.setMasterShard(masterShard);
+            factory.setSlaveShards(slaveShards);
+            // although we clear the pool, we still have to check the
+            // returned object
+            // in getResource, this call only clears idle instances, not
+            // borrowed instances
+            internalPool.clear();
+        }
+
+        logger.info("Create Master-Slaves jedis pool for {}", currentHostMasterSlave);
     }
 
     protected JedisShardInfo toJedisShardInfo(HostAndPort hostAndPort, String name) {
@@ -244,7 +245,7 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
         return currentHostMasterSlave;
     }
 
-    protected HostAndPort toHostAndPort(List<String> hostAndPort){
+    protected HostAndPort toHostAndPort(List<String> hostAndPort) {
         return new HostAndPort(hostAndPort.get(0), Integer.parseInt(hostAndPort.get(1)));
     }
 
@@ -280,76 +281,76 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
                     sentinelJedis.subscribe(new JedisPubSub() {
                         public void onMessage(String channel, String message) {
                             logger.info("Sentinel {} published: {} {}", host + ":" + port, channel, message);
-                            if("+sdown".equals(channel)){ //has slave offline
+                            if ("+sdown".equals(channel)) { //has slave offline
                                 String[] messages = message.split(" ");
-                                if(messages.length == 8){
-                                    if("slave".equals(messages[0])){
-                                        if(masterName.equals(messages[5])){
+                                if (messages.length == 8) {
+                                    if ("slave".equals(messages[0])) {
+                                        if (masterName.equals(messages[5])) {
                                             String slaveIp = messages[2];
                                             String slavePort = messages[3];
                                             String masterIp = messages[6];
                                             String masterPort = messages[7];
                                             logger.error("Found unavailable redis slave[{}] for master[{}@{}]", slaveIp + ":" + slavePort, masterName, masterIp + ":" + masterPort);
                                             initSentinelPool();
-                                        }else{
+                                        } else {
                                             logger.error("Ignoring message on +sdown for master name {}, but our master name is {}!", messages[5], masterName);
                                         }
-                                    }else{
+                                    } else {
                                         logger.error("Invalid message received on Sentinel {} on channel +sdown: {}", host + ":" + port, message);
                                     }
                                 }
                             }
-                            if("-sdown".equals(channel)){ //has slave online
+                            if ("-sdown".equals(channel)) { //has slave online
                                 String[] messages = message.split(" ");
-                                if(messages.length == 8){
-                                    if("slave".equals(messages[0])){
-                                        if(masterName.equals(messages[5])){
+                                if (messages.length == 8) {
+                                    if ("slave".equals(messages[0])) {
+                                        if (masterName.equals(messages[5])) {
                                             String slaveIp = messages[2];
                                             String slavePort = messages[3];
                                             String masterIp = messages[6];
                                             String masterPort = messages[7];
                                             logger.info("Found available redis slave[{}] for master[{}@{}]", slaveIp + ":" + slavePort, masterName, masterIp + ":" + masterPort);
                                             initSentinelPool();
-                                        }else{
+                                        } else {
                                             logger.error("Ignoring message on -sdown for master name {}, but our master name is {}!", messages[5], masterName);
                                         }
-                                    }else{
+                                    } else {
                                         logger.error("Invalid message received on Sentinel {} on channel -sdown: {}", host + ":" + port, message);
                                     }
                                 }
                             }
-                            if("+switch-master".equals(channel)){ //master has been switched
+                            if ("+switch-master".equals(channel)) { //master has been switched
                                 String[] messages = message.split(" ");
-                                if(messages.length == 5){
-                                    if(masterName.equals(messages[0])){
+                                if (messages.length == 5) {
+                                    if (masterName.equals(messages[0])) {
                                         String oldMasterIp = messages[1];
                                         String oldMasterPort = messages[2];
                                         String newMasterIp = messages[3];
                                         String newMasterPort = messages[4];
                                         logger.info("Switch master {} from [{}] to [{}]", masterName, oldMasterIp + ":" + oldMasterPort, newMasterIp + ":" + newMasterPort);
                                         initSentinelPool();
-                                    }else{
+                                    } else {
                                         logger.error("Ignoring message on +switch-master for master name {}, but our master name is {}!", messages[5], masterName);
                                     }
-                                }else{
+                                } else {
                                     logger.error("Invalid message received on Sentinel {} on channel +switch-master: {}", host + ":" + port, message);
                                 }
                             }
-                            if("+slave".equals(channel)){ //has new slave joined
+                            if ("+slave".equals(channel)) { //has new slave joined
                                 String[] messages = message.split(" ");
-                                if(messages.length == 8){
-                                    if("slave".equals(messages[0])){
-                                        if(masterName.equals(messages[5])){
+                                if (messages.length == 8) {
+                                    if ("slave".equals(messages[0])) {
+                                        if (masterName.equals(messages[5])) {
                                             String slaveIp = messages[2];
                                             String slavePort = messages[3];
                                             String masterIp = messages[6];
                                             String masterPort = messages[7];
                                             logger.error("Found available redis slave[{}] for master[{}@{}]", slaveIp + ":" + slavePort, masterName, masterIp + ":" + masterPort);
                                             initSentinelPool();
-                                        }else{
+                                        } else {
                                             logger.error("Ignoring message on +slave for master name {}, but our master name is {}!", messages[5], masterName);
                                         }
-                                    }else{
+                                    } else {
                                         logger.error("Invalid message received on Sentinel {} on channel +slave: {}", host + ":" + port, message);
                                     }
                                 }
@@ -386,9 +387,9 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
     /**
      * MasterSlaveJedis工厂类
      *
-     * @author	  	pengpeng
-     * @date	  	2015年3月14日 上午10:09:00
-     * @version  	1.0
+     * @version 1.0
+     * @author pengpeng
+     * @date 2015年3月14日 上午10:09:00
      */
     protected static class MasterSlaveJedisFactory implements PooledObjectFactory<MasterSlaveJedis> {
         private JedisShardInfo masterShard;
@@ -424,7 +425,7 @@ public class MasterSlaveJedisSentinelPool extends Pool<MasterSlaveJedis> {
         public boolean validateObject(PooledObject<MasterSlaveJedis> pooledMasterSlaveJedis) {
             try {
                 MasterSlaveJedis masterSlaveJedis = pooledMasterSlaveJedis.getObject();
-                if(!"PONG".equals(masterSlaveJedis.ping())){
+                if (!"PONG".equals(masterSlaveJedis.ping())) {
                     return false;
                 }
                 for (Jedis slaveJedis : masterSlaveJedis.getAllShards()) {
