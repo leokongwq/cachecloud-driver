@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 import java.io.Closeable;
 import java.util.*;
@@ -37,7 +37,6 @@ import redis.clients.util.Slowlog;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午4:41
- * Email:jiexiu@mogujie.com
  */
 
 public class MasterSlaveJedis extends Sharded<Jedis, JedisShardInfo> implements BasicCommands, BinaryJedisCommands, MultiKeyBinaryCommands,

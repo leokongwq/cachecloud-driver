@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 /**
  * jedis模板方法回调

@@ -1,11 +1,10 @@
 package com.mogujie.cachecloud.driver;
 
-import com.mogujie.cachecloud.driver.jedis.JedisCallback;
-import com.mogujie.cachecloud.driver.jedis.MasterSlaveJedis;
-import com.mogujie.cachecloud.driver.jedis.MasterSlaveJedisSentinelPool;
-import com.mogujie.cachecloud.driver.jedis.MasterSlaveJedisTemplateBean;
+import com.leokongwq.cachecloud.driver.jedis.JedisCallback;
+import com.leokongwq.cachecloud.driver.jedis.MasterSlaveJedis;
+import com.leokongwq.cachecloud.driver.jedis.MasterSlaveJedisSentinelPool;
+import com.leokongwq.cachecloud.driver.jedis.MasterSlaveJedisTemplateBean;
 import org.junit.Test;
-import redis.clients.util.Pool;
 
 import java.util.LinkedHashSet;
 import java.util.List;

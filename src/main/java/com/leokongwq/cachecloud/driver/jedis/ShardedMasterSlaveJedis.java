@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 import java.io.Closeable;
 import java.util.Collection;
@@ -26,7 +26,6 @@ import redis.clients.util.Sharded;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午4:50
- * Email:jiexiu@mogujie.com
  */
 public class ShardedMasterSlaveJedis extends Sharded<MasterSlaveJedis, MasterSlaveJedisShardInfo> implements JedisCommands, BinaryJedisCommands, Closeable {
 

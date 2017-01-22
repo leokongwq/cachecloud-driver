@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 import java.util.List;
 import redis.clients.jedis.JedisShardInfo;
@@ -11,7 +11,6 @@ import redis.clients.util.Sharded;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午4:50
- * Email:jiexiu@mogujie.com
  */
 public class MasterSlaveJedisShardInfo extends ShardInfo<MasterSlaveJedis> {
 

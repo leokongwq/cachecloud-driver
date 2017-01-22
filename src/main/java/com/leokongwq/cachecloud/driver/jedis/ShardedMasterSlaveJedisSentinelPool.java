@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +31,6 @@ import redis.clients.util.Pool;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午4:53
- * Email:jiexiu@mogujie.com
  */
 public class ShardedMasterSlaveJedisSentinelPool extends Pool<ShardedMasterSlaveJedis> {
 

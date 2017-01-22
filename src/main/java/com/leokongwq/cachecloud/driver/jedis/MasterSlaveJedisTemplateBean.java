@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -11,7 +11,6 @@ import java.util.Set;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午5:11
- * Email:jiexiu@mogujie.com
  */
 public class MasterSlaveJedisTemplateBean {
 

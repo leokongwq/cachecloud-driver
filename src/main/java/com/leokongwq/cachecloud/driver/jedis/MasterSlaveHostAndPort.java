@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver.jedis;
+package com.leokongwq.cachecloud.driver.jedis;
 
 import redis.clients.jedis.HostAndPort;
 
@@ -9,7 +9,6 @@ import java.util.Set;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午4:42
- * Email:jiexiu@mogujie.com
  */
 public class MasterSlaveHostAndPort {
 
