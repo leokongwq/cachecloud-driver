@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver;
+package com.leokongwq.cachecloud.driver;
 
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
@@ -12,7 +12,6 @@ import java.util.Map;
  * User: jiexiu
  * Date: 16/4/13
  * Time: 上午11:01
- * Email:jiexiu@mogujie.com
  */
 public class SentinelTest {
 

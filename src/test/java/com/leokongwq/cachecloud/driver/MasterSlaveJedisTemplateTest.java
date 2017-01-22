@@ -1,4 +1,4 @@
-package com.mogujie.cachecloud.driver;
+package com.leokongwq.cachecloud.driver;
 
 import com.leokongwq.cachecloud.driver.jedis.JedisCallback;
 import com.leokongwq.cachecloud.driver.jedis.MasterSlaveJedis;
@@ -16,7 +16,6 @@ import java.util.Set;
  * User: jiexiu
  * Date: 16/4/15
  * Time: 下午5:41
- * Email:jiexiu@mogujie.com
  */
 public class MasterSlaveJedisTemplateTest {
 
